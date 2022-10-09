@@ -17,19 +17,6 @@ const dataService = require('./data-service')
 const app = express()
 const PORT = process.env.PORT || 8080
 
-//this middleware will be called for every request, since you don't specify the path
-app.use((req, res, next) => {
-    let userData;
-    fs.readFile('./file.json', 'utf8', (err, textFromFile) => {
-        res.message = JSON.parse(textFromFile)
-        //next get handler will be called with next()
-        next()
-    })
-})
-
-app.get('/', (req, res) => {
-    res.send(res.message);
-})
 app.get('/about', (req, res) => res.sendFile(path.join(__dirname + '/views/about.html')))
 app.get('/departments', (req, res) => {
     dataService.getDepartments()
