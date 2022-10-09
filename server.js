@@ -7,7 +7,7 @@ other source
 *
 * Name: Andrii Sych Student ID: 125752212 Date: 2022-10-09
 *
-* Your app’s URL (from Cyclic) : ______________________________________________
+* Your app’s URL (from Cyclic) : https://strange-overshirt-cod.cyclic.app/
 *
 *************************************************************************/ 
 const express = require('express')
