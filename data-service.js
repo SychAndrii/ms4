@@ -1,4 +1,5 @@
 const fs = require('fs')
+const { resolve } = require('path')
 let employees = []
 let departments = []
 let managers = []
@@ -15,6 +16,39 @@ function Initialize() {
                 resolve()
             })
         })
+    })
+}
+
+function getEmployeesByStatus(status) {
+    return new Promise((resolve, reject) => {
+        resolve(employees.filter((elem) => elem.status == status))
+    })
+}
+
+function getEmployeesByDepartment(dep) {
+    return new Promise((resolve, reject) => {
+        resolve(employees.filter(elem => elem.department == dep))
+    })
+}
+
+function getEmployeeByNum(id) {
+    return new Promise((resolve, reject) => {
+        resolve(employees.find(elem => elem.employeeNum == id))
+    })
+}
+
+function getEmployeesByManager(managerID) {
+    return new Promise((resolve, reject) => {
+        resolve(employees.filter(elem => elem.employeeManagerNum == managerID))
+    })
+}
+
+function addEmployee(employeeData) {
+    return new Promise((resolve, reject) => {
+        employeeData.isManager = employeeData.isManager ? true : false;
+        employeeData.employeeNum = employees.length + 1;
+        employees.push(employeeData) 
+        resolve();
     })
 }
 
@@ -58,5 +92,10 @@ module.exports = {
     Initialize,
     getAllEmployees,
     getDepartments,
-    getManagers
+    getManagers,
+    addEmployee,
+    getEmployeesByStatus,
+    getEmployeesByDepartment,
+    getEmployeesByManager,
+    getEmployeeByNum
 }
