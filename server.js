@@ -1,13 +1,13 @@
 /*************************************************************************
-* BTI325– Assignment 2
+* BTI325– Assignment 4
 * I declare that this assignment is my own work in accordance with Seneca Academic
 Policy. No part * of this assignment has been copied manually or electronically from any
 other source
 * (including 3rd party web sites) or distributed to other students.
 *
-* Name: Andrii Sych Student ID: 125752212 Date: 2022-10-09
+* Name: Andrii Sych Student ID: 125752212 Date: 2022-10-30
 *
-* Your app’s URL (from Cyclic) : https://strange-overshirt-cod.cyclic.app/
+* Your app’s URL (from Heroku) : https://afternoon-bayou-17237.herokuapp.com/
 *
 *************************************************************************/ 
 const express = require('express')
@@ -15,6 +15,7 @@ const fs = require('fs')
 const path = require('path')
 const dataService = require('./data-service')
 const multer = require('multer')
+const handlebars = require('express-handlebars')
 
 const app = express()
 const PORT = process.env.PORT || 8080
@@ -27,56 +28,116 @@ const storage = multer.diskStorage({
   });
 const upload = multer({storage: storage});
 
+app.engine('hbs', handlebars.engine({ extname: '.hbs',
+                                      defaultLayout: 'main',
+                                      helpers: {
+                                        navLink: function(url, options){
+                                            return '<li' +
+                                            ((url == app.locals.activeRoute) ? ' class="active" ' : '') +
+                                           
+                                            '><a href=" ' + url + ' ">' + options.fn(this) + '</a></li>';
+                                           },
+                                           equal: function (lvalue, rvalue, options) {
+                                                if (arguments.length < 3)
+                                                    throw new Error("Handlebars Helper equal needs 2 parameters");
+                                                if (lvalue != rvalue) {
+                                                    return options.inverse(this);
+                                                } else {
+                                                    return options.fn(this);
+                                                }
+                                           },
+                                           printDepartmentList: function(employee, departments) {
+                                             let result = '<select class="form-control" id="department" name="department">';
+                                             for (let i = 0; i < departments.length; i++) {
+                                                result += '<option value="' + departments[i].departmentId + '"';
+                                                if(departments[i].departmentId == employee.department) 
+                                                    result += ' selected';
+                                                result += '>' + departments[i].departmentName + '</option>';
+                                             }
+                                             result += '</select>';
+                                             return result;
+                                           }                                     
+                                      }
+                                    }));
+app.set('view engine', 'hbs');
+
 app.use(express.static('public'))
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
-app.get('/', (req, res) => res.sendFile(path.join(__dirname + '/views/home.html')))
-app.get('/images/add', (req, res) => res.sendFile(path.join(__dirname + '/views/addImage.html')))
+app.use(function(req,res,next){
+    let route = req.baseUrl + req.path;
+    app.locals.activeRoute = (route == "/") ? "/" : route.replace(/\/$/, "");
+    next();
+   });
+
+app.get('/', (req, res) => {
+    res.render('home')
+})
+app.get('/images/add', (req, res) => res.render('addImage'))
 app.post('/images/add',  upload.single('imageFile'), (req, res) => res.redirect('/images'))
 app.get('/images', (req, res) => {
     fs.readdir('./public/images/uploaded', {withFileTypes: true}, (err, files) => {
         if(err)
             res.send('could not read a file')
         else {
-            const json = {
-                images: files
-            }
-            res.json(json)
+            res.render('images', {images: files})
         }
     })
 })
+app.get('/employees', async (req, res) => {
+    try {
+        let arr = [];
+        if(req.query.department)
+            arr = await dataService.getEmployeesByDepartment(req.query.department);
+        else if(req.query.manager)
+            arr = await dataService.getEmployeesByManager(req.query.manager);
+        else if(req.query.status)
+            arr = await dataService.getEmployeesByStatus(req.query.status);
+        else 
+            arr = await dataService.getAllEmployees()
+        res.render('employees', {arr})
+    }
+    catch(err) {
+        res.render('employees', {message: err})
+    }
+})
+app.get('/departments', async (req, res) => {
+    try {
+        const departments = await dataService.getDepartments();
+        res.render('departments', {arr: departments})
+    }
+    catch(err) {
+        res.render('departments', {message: err})
+    }
+})
 app.get('/employee/:id', (req, res) => {
     dataService.getEmployeeByNum(req.params.id)
-    .then(data => res.json(data)) 
+    .then(async data => {
+        const departments = await dataService.getDepartments();
+        res.render('employee', {
+            employee: {
+                data,
+                departments
+            }
+        })   
+    }) 
+    .catch(err => {
+        res.render('employee', {message: "no results"})
+    })
 })
-app.get('/employees/add', (req, res) => res.sendFile(path.join(__dirname + '/views/addEmployee.html')))
+app.post("/employee/update", (req, res) => {
+    dataService.updateEmployee(req.body).then(() => res.redirect("/employees"))
+});
+app.get('/employees/add', (req, res) => res.render('addEmployee'))
 app.post('/employees/add', (req, res) => {
     dataService.addEmployee(req.body).then(() => res.redirect('/employees'));
 })
-app.get('/about', (req, res) => res.sendFile(path.join(__dirname + '/views/about.html')))
+app.get('/about', (req, res) => res.render('about'))
 app.get('/departments', (req, res) => {
     dataService.getDepartments()
     .then((data) => res.json(data))
     .catch((err) => res.json({message: err}))
-})
-app.get('/employees', (req, res) => {
-    if(req.query.status)
-        dataService.getEmployeesByStatus(req.query.status)
-        .then((data) => res.json(data))
-        .catch((err) => res.json({message: err}))
-    else if(req.query.department)
-        dataService.getEmployeesByDepartment(req.query.department)
-        .then((data) => res.json(data))
-        .catch((err) => res.json({message: err}))
-    else if(req.query.manager)
-        dataService.getEmployeesByManager(req.query.manager)
-        .then((data) => res.json(data))
-        .catch((err) => res.json({message: err}))
-    else
-        dataService.getAllEmployees()
-        .then((data) => res.json(data))
-        .catch((err) => res.json({message: err}))
 })
 app.get('/managers', (req, res) => {
     dataService.getManagers()

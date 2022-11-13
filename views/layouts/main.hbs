@@ -25,22 +25,33 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="#">Home</a></li>
-            <li><a href="/about">About</a></li>
-            <li><a href="/employees/add">Add Employee</a></li>
-            <li><a href="/images/add">Add Image</a></li>
+            {{#navLink "/"}}Home{{/navLink}}
+            {{#navLink "/about"}}About{{/navLink}}
+            {{#navLink "/employees/add"}}Add Employee{{/navLink}}
+            {{#navLink "/images/add"}}Add Image{{/navLink}}
           </ul>
           <ul class="nav navbar-nav navbar-right">
-            <li><a href="/images">Images</a></li>
-            <li><a href="/employees">Employees</a></li>
-            <li><a href="/managers">Managers</a></li>
-            <li><a href="/departments">Departments</a></li>
+            {{#navLink "/images"}}Images{{/navLink}}
+            {{#navLink "/employees"}}Employees{{/navLink}}
+            {{#navLink "/departments"}}Departments{{/navLink}}
           </ul>
         </div><!-- /.navbar-collapse -->
       </div><!-- /.container-fluid -->
     </nav>
     <div class="container">
-      <div class="row">
+      {{{body}}}
+    </div>
+
+    <!-- Latest compiled and minified jQuery 3.2.1 JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="crossorigin="anonymous"></script>
+
+    <!-- Latest compiled and minified Bootstrap 3.3.7 JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  </body>
+</html>
+
+<!--
+<div class="row">
         <aside class="col-md-3">
           <h2>Coming soon - still in production</h2>
           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam accumsan libero a sem venenatis pharetra.</p>
@@ -56,12 +67,6 @@
           </article>
         </section>
       </div>
-    </div>
 
-    <!-- Latest compiled and minified jQuery 3.2.1 JavaScript -->
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="crossorigin="anonymous"></script>
-
-    <!-- Latest compiled and minified Bootstrap 3.3.7 JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-  </body>
-</html>
+      
+    -->
